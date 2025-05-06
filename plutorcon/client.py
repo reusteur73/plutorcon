@@ -150,7 +150,7 @@ class PlutoniumRCON:
         return response[0].startswith("ÿÿÿÿprint")
 
     def close(self):
-        """Close the socket connection."""
+        """Close RCON socket connection."""
         if self.socket:
             self.socket.close()
             self.socket = None
