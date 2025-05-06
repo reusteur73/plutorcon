@@ -15,7 +15,7 @@ pip install plutorcon
 ```python
 from plutorcon import PlutoniumRCON, Colors
 
-server = PlutoniumRCON("127.0.0.1", 24999, password="PinePd")
+server = PlutoniumRCON("127.0.0.1", 24999, password="mycoolpass")
 
 status = server.get_server_status()
 print(status)
