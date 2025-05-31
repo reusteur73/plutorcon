@@ -22,29 +22,28 @@ class PlutoniumRCON:
         else:
             pre_request = f"rcon {self.password} {command}{' ' + arg if arg else ''}"
             request = b"\xFF\xFF\xFF\xFF" + pre_request.encode('latin1') + b"\n"
-            print(f"Request : {request}")
         try:
             self.socket.sendto(request, (self.ip, self.port))
             data, _ = self.socket.recvfrom(4096)
             response = data.decode("latin1", errors="ignore")
-            print("Réponse:", response)
             return response.strip().split("\n")
         except socket.timeout:
-            print("⏱️ Timeout : aucune réponse du serveur.")
             return []
         except Exception as e:
-            print(f"❌ Erreur lors de la communication : {e}")
             return []
 
     def _strip_colors(self, text: str) -> str:
         return re.sub(r'\^\d', '', text)
 
-
-
-    def get_players(self) -> list[Player] | None:
+    def get_players(self) -> list[Player]:
+        """Get a list of players on the server.
+        Returns:
+            list[Player]: A list of Player objects representing players on the server.
+            If the server is not responding, returns an empty list.
+        """
         lines = self._send_command("getstatus")
         if not lines or not lines[0].strip().endswith("statusResponse"):
-            return None
+            return []
         players = []
 
         player_id = 0
@@ -155,8 +154,5 @@ class PlutoniumRCON:
             self.socket.close()
             self.socket = None
 
-
-
     def __del__(self):
         self.close()
-

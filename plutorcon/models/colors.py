@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Colors(Enum):
+    """Enum for colors used in messages."""
     BLACK = "^0"
     RED = "^1"
     GREEN = "^2"

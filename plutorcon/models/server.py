@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ServerInfo:
+    """Represents the server information."""
     netfieldchk: str
     protocol: int
     sessionmode: int       
@@ -21,6 +22,7 @@ class ServerInfo:
 
 @dataclass
 class ServerStatus:
+    """Represents the server status."""
     com_maxclients: int
     fs_game: str
     g_gametype: str
