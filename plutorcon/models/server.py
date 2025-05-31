@@ -19,6 +19,7 @@ class ServerInfo:
     seckey: str
     secid: str
     hostaddr: str
+    clients: int
 
 @dataclass
 class ServerStatus:
