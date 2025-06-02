@@ -1,5 +1,5 @@
 import socket, re
-from typing import Union
+from typing import Union, List
 from .models import Player, Commands, Colors, ServerInfo, ServerStatus
 
 class PlutoniumRCON:
@@ -37,6 +37,7 @@ class PlutoniumRCON:
 
     def get_players(self) -> list[Player]:
         """Get a list of players on the server.
+                **This method does not return IP, port, qport, guid, lastmsg, rate attributes. Use `status()` method for that.**
         Returns:
             list[Player]: A list of Player objects representing players on the server.
             If the server is not responding, returns an empty list.
@@ -101,6 +102,42 @@ class PlutoniumRCON:
             info_dict[key] = value
         info = ServerInfo(**info_dict)
         return info
+
+    def status(self) -> list[Player]:
+        """Return list of players on the server.
+                **Usefull to get clients IP Address and GUID.**
+        Returns:
+            list[Player]: A list of Player objects representing players on the server.
+            If the server is not responding, returns an empty list.
+        """
+        lines = self._send_command(Commands.STATUS, True)
+        
+        if len(lines) > 4:
+            lines = lines[4:]
+        else: 
+            return []
+        players: List[Player] = []
+        for line in lines:
+            line = line.encode('ascii', errors='ignore').decode().strip()
+            match = re.match(
+                r'(?P<num>\d+)\s+(?P<score>-?\d+)\s+(?P<bot>\w+)?\s*(?P<ping>\d+|LOAD)\s+(?P<guid>[0-9a-fA-F]+)\s+(?P<name>.+?)\s+(?P<lastmsg>\d+)\s+(?P<ipport>[\d\.]+:\d+)\s+(?P<qport>\d+)\s+(?P<rate>\d+)',
+                line
+            )
+            if match:
+                ip, port = match.group("ipport").split(":")
+                players.append(Player(
+                    id=int(match.group("num")),
+                    name=self._strip_colors(match.group("name")),
+                    ping=int(match.group("ping")) if match.group("ping") != "LOAD" else str(match.group("ping")),
+                    score=int(match.group("score")),
+                    ip=ip,
+                    port=int(port),
+                    qport=int(match.group("qport")),
+                    guid=match.group("guid"),
+                    lastmsg=int(match.group("lastmsg")),
+                    rate=int(match.group("rate"))
+                ))
+        return players
 
     def say(self, message: str, color: Colors=Colors.RED) -> bool:
         """Send a message to the server.
